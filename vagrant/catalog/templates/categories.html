@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <h1>Categories</h1>
+
+    {% for i in categories %}
+    <div>
+      {{i.name}}<br>
+      <br>
+    </div>
+    {% endfor %}
+
+    <h1>Latest Items</h1>
+
+    {% for j in items %}
+    <div>
+      {{j.name}}<br>
+      <br><br>
+    </div>
+    {% endfor %}
+  </body>
+</html>
