@@ -1,2 +1,2 @@
 *.pyc
-*.db
+init_catalog_db.py
