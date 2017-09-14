@@ -5,18 +5,20 @@
 
     {% for i in categories %}
     <div>
-      {{i.name}}<br>
-      <br>
+      <p>{{i.name}}</p>
     </div>
     {% endfor %}
 
     <h1>Latest Items</h1>
 
     {% for j in items %}
-    <div>
-      {{j.name}}<br>
-      <br><br>
-    </div>
+      {% for k in categories %}
+        {% if j.category_id == k.id %}
+        <div>
+          <p>{{j.name}} ({{k.name}})</p>
+        </div>
+        {% endif %}
+      {% endfor %}
     {% endfor %}
   </body>
 </html>
