@@ -40,6 +40,17 @@ def showItems(catalog_name):
                 items=items,
                 catalog_name=catalog_name)
 
+
+@app.route('/catalog/<catalog_name>/<item_name>')
+def showItemInfo(catalog_name, item_name):
+    """Show specific information of this item."""
+    items = session.query(Item).filter_by(name=item_name)
+    for i in items:
+        info = i.description
+    return render_template(
+                'iteminfo.html', item_name=item_name, info=info)
+
+
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
     app.debug = True
