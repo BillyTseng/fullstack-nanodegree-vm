@@ -9,16 +9,12 @@
     </div>
     {% endfor %}
 
-    <h1>Latest Items</h1>
+    <h1>{{catalog_name}} Items ({{items.count()}} items)</h1>
 
     {% for j in items %}
-      {% for k in categories %}
-        {% if j.category_id == k.id %}
         <div>
-          <p>{{j.name}} ({{k.name}})</p>
+          <p>{{j.name}}</p>
         </div>
-        {% endif %}
-      {% endfor %}
     {% endfor %}
   </body>
 </html>
