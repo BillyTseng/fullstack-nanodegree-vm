@@ -17,6 +17,12 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 
+def getCatalogNameByID(inputId):
+    new_categorie = session.query(Category).filter_by(
+                        id=inputId).one()
+    return new_categorie.name
+
+
 @app.route('/')
 def showCategories():
     """Show all categories and latest items"""
@@ -49,6 +55,23 @@ def showItemInfo(catalog_name, item_name, item_id):
                 item_name=item.name, info=item.description, item_id=item_id)
 
 
+@app.route('/catalog/new', methods=['GET', 'POST'])
+def newItem():
+    """Create a new item"""
+    categories = session.query(Category).order_by(asc(Category.name))
+    if request.method == 'POST':
+        newItem = Item(
+            name=request.form['name'], description=request.form['description'],
+            category_id=request.form['categories'])
+        session.add(newItem)
+        session.commit()
+        catalog_name = getCatalogNameByID(newItem.category_id)
+        flash('New Menu %s Item Successfully Created' % (newItem.name))
+        return redirect(url_for('showItems', catalog_name=catalog_name))
+    else:
+        return render_template('newitem.html', categories=categories)
+
+
 @app.route(
     '/catalog/<catalog_name>/<int:item_id>/<item_name>/edit',
     methods=['GET', 'POST'])
@@ -63,9 +86,7 @@ def editItem(catalog_name, item_name, item_id):
             editedItem.description = request.form['description']
         if request.form['categories']:
             editedItem.category_id = request.form['categories']
-            new_categorie = session.query(Category).filter_by(
-                                id=editedItem.category_id).one()
-            catalog_name = new_categorie.name
+            catalog_name = getCatalogNameByID(editedItem.category_id)
         session.add(editedItem)
         session.commit()
         flash('Item Successfully Edited')
