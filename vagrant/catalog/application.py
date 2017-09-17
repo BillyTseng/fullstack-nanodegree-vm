@@ -18,8 +18,7 @@ session = DBSession()
 
 
 def getCatalogNameByID(inputId):
-    new_categorie = session.query(Category).filter_by(
-                        id=inputId).one()
+    new_categorie = session.query(Category).filter_by(id=inputId).one()
     return new_categorie.name
 
 
@@ -97,6 +96,21 @@ def editItem(catalog_name, item_name, item_id):
     else:
         return render_template(
             'edititem.html', item=editedItem, categories=categories)
+
+
+@app.route(
+    '/catalog/<catalog_name>/<int:item_id>/<item_name>/delete',
+    methods=['GET', 'POST'])
+def deleteItem(catalog_name, item_id, item_name):
+    """Delete a item"""
+    itemToDelete = session.query(Item).filter_by(id=item_id).one()
+    if request.method == 'POST':
+        session.delete(itemToDelete)
+        session.commit()
+        flash('Menu Item Successfully Deleted')
+        return redirect(url_for('showItems', catalog_name=catalog_name))
+    else:
+        return render_template('deleteItem.html', item=itemToDelete)
 
 
 if __name__ == '__main__':

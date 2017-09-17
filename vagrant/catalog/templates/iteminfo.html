@@ -4,6 +4,6 @@
     <h1>{{item_name}}</h1>
     <p>Description: {{info}}</p>
     <a href='{{url_for('editItem', catalog_name=catalog_name, item_name=item_name, item_id=item_id) }}'>Edit</a> |
-		<a href='#'>Delete</a>
+		<a href='{{url_for('deleteItem', catalog_name=catalog_name, item_name=item_name, item_id=item_id) }}'>Delete</a>
   </body>
 </html>
