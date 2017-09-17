@@ -17,8 +17,15 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 
-def getCatalogNameByID(inputId):
-    new_categorie = session.query(Category).filter_by(id=inputId).one()
+def getCatalogNameByID(category_id):
+    """getCatalogNameByID takes a category_id as a parameter.
+        Executes the query and returns the name of the category.
+        args:
+            category_id - an id of category.
+        returns:
+            the name of the category.
+    """
+    new_categorie = session.query(Category).filter_by(id=category_id).one()
     return new_categorie.name
 
 
