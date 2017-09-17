@@ -30,10 +30,8 @@ def showCategories():
 def showItems(catalog_name):
     """Shows all the items available for this category."""
     categories = session.query(Category).order_by(asc(Category.name))
-    cur_category = session.query(Category).filter_by(name=catalog_name)
-    for i in cur_category:
-        category_id = i.id
-    items = session.query(Item).filter_by(category_id=category_id)
+    cur_category = session.query(Category).filter_by(name=catalog_name).one()
+    items = session.query(Item).filter_by(category_id=cur_category.id)
     return render_template(
                 'items.html',
                 categories=categories,
@@ -41,14 +39,43 @@ def showItems(catalog_name):
                 catalog_name=catalog_name)
 
 
-@app.route('/catalog/<catalog_name>/<item_name>')
-def showItemInfo(catalog_name, item_name):
+@app.route('/catalog/<catalog_name>/<int:item_id>/<item_name>')
+def showItemInfo(catalog_name, item_name, item_id):
     """Show specific information of this item."""
-    items = session.query(Item).filter_by(name=item_name)
-    for i in items:
-        info = i.description
+    item = session.query(Item).filter_by(id=item_id).one()
     return render_template(
-                'iteminfo.html', item_name=item_name, info=info)
+                'iteminfo.html',
+                catalog_name=catalog_name,
+                item_name=item.name, info=item.description, item_id=item_id)
+
+
+@app.route(
+    '/catalog/<catalog_name>/<int:item_id>/<item_name>/edit',
+    methods=['GET', 'POST'])
+def editItem(catalog_name, item_name, item_id):
+    """Edit information of item."""
+    categories = session.query(Category).order_by(asc(Category.name))
+    editedItem = session.query(Item).filter_by(id=item_id).one()
+    if request.method == 'POST':
+        if request.form['name']:
+            editedItem.name = request.form['name']
+        if request.form['description']:
+            editedItem.description = request.form['description']
+        if request.form['categories']:
+            editedItem.category_id = request.form['categories']
+            new_categorie = session.query(Category).filter_by(
+                                id=editedItem.category_id).one()
+            catalog_name = new_categorie.name
+        session.add(editedItem)
+        session.commit()
+        flash('Item Successfully Edited')
+        return redirect(url_for(
+                'showItemInfo',
+                catalog_name=catalog_name,
+                item_name=editedItem.name, item_id=editedItem.id))
+    else:
+        return render_template(
+            'edititem.html', item=editedItem, categories=categories)
 
 
 if __name__ == '__main__':

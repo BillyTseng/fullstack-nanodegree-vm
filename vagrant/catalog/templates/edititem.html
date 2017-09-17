@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <h1>Edit Item</h1>
+    <form action="#" method = "post">
+      <label for="name">Name</label><br>
+  		<input type ="text" maxlength="100" class="form-control" name="name" value="{{item.name }}"><br><br>
+
+  		<label for="description">Description</label><br>
+  		<textarea class="form-control" maxlength="250" rows="3" name="description">{{item.description}}</textarea><br><br>
+
+      <label for="categories">Category</label><br>
+      <select name="categories">
+        {% for i in categories %}
+          <option value='{{i.id}}'>{{i.name}}</option>
+        {% endfor %}
+      </select>
+      <br><br>
+      <button type="submit" id="submit" type="submit">Save</button>
+  		<a href = '{{url_for('showCategories')}}'><button type="button">Cancel</button></a>
+    </form>
+  </body>
+</html>

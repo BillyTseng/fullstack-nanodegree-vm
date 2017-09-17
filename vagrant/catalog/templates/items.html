@@ -13,7 +13,7 @@
 
     {% for j in items %}
         <div>
-          <p><a href='{{url_for('showItemInfo', catalog_name=catalog_name, item_name=j.name) }}'>{{j.name}}</a></p>
+          <p><a href='{{url_for('showItemInfo', catalog_name=catalog_name, item_name=j.name, item_id=j.id) }}'>{{j.name}}</a></p>
         </div>
     {% endfor %}
   </body>
