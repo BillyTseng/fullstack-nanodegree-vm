@@ -29,6 +29,17 @@ def getCatalogNameByID(category_id):
     return new_categorie.name
 
 
+@app.route('/catalog.json')
+def restaurantsJSON():
+    list = []
+    categories = session.query(Category).all()
+    for category in categories:
+        items = session.query(Item).filter_by(category_id=category.id).all()
+        dict = category.serialize
+        dict['Item'] = [r.serialize for r in items]
+        list.append(dict)
+    return jsonify(categories=list)
+
 @app.route('/')
 def showCategories():
     """Show all categories and latest items"""
