@@ -1,2 +1,3 @@
 *.pyc
 init_catalog_db.py
+secrets/

@@ -1,11 +1,10 @@
-<!DOCTYPE html>
-<html>
-  <body>
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
     <h1>Delete Item</h1>
     <p>Are you sure you want to delete "{{item.name}}"?</p>
     <form action="#" method = "post">
       <button type="submit" id="submit" type="submit">Delete</button>
       <a href = '{{url_for('showCategories')}}'><button type="button">Cancel</button></a>
     </form>
-  </body>
-</html>
+{% endblock %}
