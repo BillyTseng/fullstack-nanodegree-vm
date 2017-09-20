@@ -4,7 +4,7 @@ from flask import Flask, render_template, request, redirect, jsonify
 from flask import url_for, flash, make_response
 from sqlalchemy import create_engine, asc, desc
 from sqlalchemy.orm import sessionmaker
-from database_setup import Category, Base, Item
+from database_setup import Category, Base, Item, User
 from flask import session as login_session
 
 from oauth2client.client import flow_from_clientsecrets
@@ -25,7 +25,7 @@ APPLICATION_NAME = "Web Catalog Application"
 
 
 # Connect to Database and create database session
-engine = create_engine('sqlite:///category_item.db')
+engine = create_engine('sqlite:///category_item_withuser.db')
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
@@ -115,6 +115,12 @@ def gconnect():
     login_session['picture'] = data['picture']
     login_session['email'] = data['email']
 
+    # see if user exists, if it doesn't make a new one
+    user_id = getUserID(login_session['email'])
+    if not user_id:
+        user_id = createUser(login_session)
+    login_session['user_id'] = user_id
+
     output1 = ''
     output1 += '<h1>Welcome, '
     output1 += login_session['username']
@@ -124,7 +130,6 @@ def gconnect():
     output1 += ' " style = "width: 300px; height: 300px;'
     output1 += 'border-radius: 150px;'
     output1 += '-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
-    print output1
     flash("you are now logged in as %s" % login_session['username'])
     print "done!"
     return output1
@@ -163,6 +168,34 @@ def gdisconnect():
         return response
 
 
+# User Helper Functions
+def createUser(login_session):
+    if not login_session['username']:  # check username is not empty
+        username = login_session['email'].split("@")[0]
+    else:
+        username = login_session['username']
+
+    newUser = User(name=username, email=login_session[
+                   'email'], picture=login_session['picture'])
+    session.add(newUser)
+    session.commit()
+    user = session.query(User).filter_by(email=login_session['email']).one()
+    return user.id
+
+
+def getUserInfo(user_id):
+    user = session.query(User).filter_by(id=user_id).one()
+    return user
+
+
+def getUserID(email):
+    try:
+        user = session.query(User).filter_by(email=email).one()
+        return user.id
+    except:
+        return None
+
+
 def getCatalogNameByID(category_id):
     """getCatalogNameByID takes a category_id as a parameter.
         Executes the query and returns the name of the category.
@@ -193,7 +226,11 @@ def showCategories():
     """Show all categories and latest items"""
     categories = session.query(Category).order_by(asc(Category.name))
     items = session.query(Item).order_by(desc(Item.id))
-    return render_template(
+    if 'username' not in login_session:
+        return render_template(
+                'public_categories.html', categories=categories, items=items)
+    else:
+        return render_template(
                 'categories.html', categories=categories, items=items)
 
 
@@ -214,7 +251,15 @@ def showItems(catalog_name):
 def showItemInfo(catalog_name, item_name, item_id):
     """Show specific information of this item."""
     item = session.query(Item).filter_by(id=item_id).one()
-    return render_template(
+    creator = getUserInfo(item.user_id)
+    if 'username' not in login_session or creator.id != login_session[
+                                                                    'user_id']:
+        return render_template(
+                'public_iteminfo.html',
+                catalog_name=catalog_name,
+                item_name=item.name, info=item.description, item_id=item_id)
+    else:
+        return render_template(
                 'iteminfo.html',
                 catalog_name=catalog_name,
                 item_name=item.name, info=item.description, item_id=item_id)
@@ -229,7 +274,8 @@ def newItem():
     if request.method == 'POST':
         newItem = Item(
             name=request.form['name'], description=request.form['description'],
-            category_id=request.form['categories'])
+            category_id=request.form['categories'],
+            user_id=login_session['user_id'])
         session.add(newItem)
         session.commit()
         catalog_name = getCatalogNameByID(newItem.category_id)
@@ -248,6 +294,14 @@ def editItem(catalog_name, item_name, item_id):
         return redirect('/login')
     categories = session.query(Category).order_by(asc(Category.name))
     editedItem = session.query(Item).filter_by(id=item_id).one()
+
+    alert = ""
+    alert += "<script>function myFunction() {alert('You are not authorized to"
+    alert += " edit this item. Please add your own item in order to edit it."
+    alert += "');}</script><body onload='myFunction()''>"
+    if login_session['user_id'] != editedItem.user_id:
+        return alert
+
     if request.method == 'POST':
         if request.form['name']:
             editedItem.name = request.form['name']
@@ -276,6 +330,12 @@ def deleteItem(catalog_name, item_id, item_name):
     if 'username' not in login_session:
         return redirect('/login')
     itemToDelete = session.query(Item).filter_by(id=item_id).one()
+    alert = ""
+    alert += "<script>function myFunction() {alert('You are not authorized to"
+    alert += " delete this item. Please create your own item."
+    alert += "');}</script><body onload='myFunction()''>"
+    if login_session['user_id'] != itemToDelete.user_id:
+        return alert
     if request.method == 'POST':
         session.delete(itemToDelete)
         session.commit()

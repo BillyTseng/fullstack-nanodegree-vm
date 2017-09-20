@@ -1,0 +1,23 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+    <h1>Categories</h1>
+
+    {% for i in categories %}
+    <div>
+      <p><a href='{{url_for('showItems', catalog_name=i.name) }}'>{{i.name}}</a></p>
+    </div>
+    {% endfor %}
+
+    <h1>Latest Items</h1>
+
+    {% for j in items %}
+      {% for k in categories %}
+        {% if j.category_id == k.id %}
+        <div>
+          <p><a href='{{url_for('showItemInfo', catalog_name=k.name, item_name=j.name, item_id=j.id) }}'>{{j.name}}</a> ({{k.name}})</p>
+        </div>
+        {% endif %}
+      {% endfor %}
+    {% endfor %}
+{% endblock %}
