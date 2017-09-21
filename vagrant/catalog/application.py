@@ -196,6 +196,7 @@ def getUserID(email):
         return None
 
 
+# Utility functions
 def getCatalogNameByID(category_id):
     """getCatalogNameByID takes a category_id as a parameter.
         Executes the query and returns the name of the category.
@@ -208,6 +209,21 @@ def getCatalogNameByID(category_id):
     return new_categorie.name
 
 
+def isLogin():
+    """isLogin return boolean to describe current status of login session.
+        returns:
+            True: the user is logined.
+            False: the user is logouted.
+    """
+    if 'username' not in login_session:
+        print "is NOT Login!!!"
+        return False
+    else:
+        print "is Login!!!"
+        return True
+
+
+# Web page handlers
 @app.route('/catalog.json')
 def restaurantsJSON():
     """ JSON APIs to view Catalog Information"""
@@ -228,10 +244,12 @@ def showCategories():
     items = session.query(Item).order_by(desc(Item.id))
     if 'username' not in login_session:
         return render_template(
-                'public_categories.html', categories=categories, items=items)
+                'public_categories.html', categories=categories,
+                items=items, is_login=isLogin())
     else:
         return render_template(
-                'categories.html', categories=categories, items=items)
+                'categories.html', categories=categories,
+                items=items, is_login=isLogin())
 
 
 @app.route('/catalog/<catalog_name>/items')
@@ -242,9 +260,8 @@ def showItems(catalog_name):
     items = session.query(Item).filter_by(category_id=cur_category.id)
     return render_template(
                 'items.html',
-                categories=categories,
-                items=items,
-                catalog_name=catalog_name)
+                categories=categories, items=items,
+                catalog_name=catalog_name, is_login=isLogin())
 
 
 @app.route('/catalog/<catalog_name>/<int:item_id>/<item_name>')
@@ -256,13 +273,13 @@ def showItemInfo(catalog_name, item_name, item_id):
                                                                     'user_id']:
         return render_template(
                 'public_iteminfo.html',
-                catalog_name=catalog_name,
-                item_name=item.name, info=item.description, item_id=item_id)
+                catalog_name=catalog_name, item_name=item.name,
+                info=item.description, item_id=item_id, is_login=isLogin())
     else:
         return render_template(
                 'iteminfo.html',
-                catalog_name=catalog_name,
-                item_name=item.name, info=item.description, item_id=item_id)
+                catalog_name=catalog_name, item_name=item.name,
+                info=item.description, item_id=item_id, is_login=isLogin())
 
 
 @app.route('/catalog/new', methods=['GET', 'POST'])
@@ -282,7 +299,8 @@ def newItem():
         flash('New Menu %s Item Successfully Created' % (newItem.name))
         return redirect(url_for('showItems', catalog_name=catalog_name))
     else:
-        return render_template('newitem.html', categories=categories)
+        return render_template(
+                    'newitem.html', categories=categories, is_login=isLogin())
 
 
 @app.route(
@@ -319,7 +337,8 @@ def editItem(catalog_name, item_name, item_id):
                 item_name=editedItem.name, item_id=editedItem.id))
     else:
         return render_template(
-            'edititem.html', item=editedItem, categories=categories)
+            'edititem.html', item=editedItem, categories=categories,
+            is_login=isLogin())
 
 
 @app.route(
@@ -342,7 +361,8 @@ def deleteItem(catalog_name, item_id, item_name):
         flash('Menu Item Successfully Deleted')
         return redirect(url_for('showItems', catalog_name=catalog_name))
     else:
-        return render_template('deleteItem.html', item=itemToDelete)
+        return render_template(
+                    'deleteitem.html', item=itemToDelete, is_login=isLogin())
 
 
 if __name__ == '__main__':
