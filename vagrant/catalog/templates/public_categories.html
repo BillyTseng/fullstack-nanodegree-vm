@@ -1,15 +1,17 @@
 {% extends "main.html" %}
 {% block content %}
 {% include "header.html" %}
-    <h1>Categories</h1>
+<div class="col-sm-4">
+    <h2>Categories</h2>
 
     {% for i in categories %}
     <div>
       <p><a href='{{url_for('showItems', catalog_name=i.name) }}'>{{i.name}}</a></p>
     </div>
     {% endfor %}
-
-    <h1>Latest Items</h1>
+</div>
+<div class="col-sm-8">
+    <h2>Latest Items</h2>
 
     {% for j in items %}
       {% for k in categories %}
@@ -20,4 +22,5 @@
         {% endif %}
       {% endfor %}
     {% endfor %}
+</div>
 {% endblock %}

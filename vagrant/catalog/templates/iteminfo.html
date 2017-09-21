@@ -1,7 +1,7 @@
 {% extends "main.html" %}
 {% block content %}
 {% include "header.html" %}
-    <h1>{{item_name}}</h1>
+    <h2>{{item_name}}</h2>
     <p>Description: {{info}}</p>
     <a href='{{url_for('editItem', catalog_name=catalog_name, item_name=item_name, item_id=item_id) }}'>Edit</a> |
 		<a href='{{url_for('deleteItem', catalog_name=catalog_name, item_name=item_name, item_id=item_id) }}'>Delete</a>

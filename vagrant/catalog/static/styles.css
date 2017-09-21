@@ -1,0 +1,33 @@
+body {
+  background-color: lightgray;
+}
+
+h1, h2 {
+  font-weight: 700;
+}
+.container {
+  .center-block();
+  background-color: white;
+}
+
+.col-sm-4 a, .col-sm-8 a {
+ font-size: 14px;
+ color: #ff6600;
+ line-height: 17px;
+}
+
+.btn {
+  margin-top: 20px;
+  background-color: #ff6600;
+  border-color: white;
+}
+
+
+.top-menu {
+  background-color: darkblue;
+
+}
+
+.top-menu a {
+  color: white;
+}
