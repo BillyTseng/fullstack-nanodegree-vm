@@ -122,12 +122,12 @@ def gconnect():
     login_session['user_id'] = user_id
 
     output1 = ''
-    output1 += '<h2>Welcome, '
+    output1 += '<p>Welcome, '
     output1 += login_session['username']
-    output1 += '!</h2>'
+    output1 += '!</p>'
     output1 += '<img src="'
     output1 += login_session['picture']
-    output1 += ' " style = "width: 100px; height: 100px;'
+    output1 += ' " style = "width: 40px; height: 40px;'
     output1 += 'border-radius: 150px;'
     output1 += '-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
     flash("you are now logged in as %s" % login_session['username'])
@@ -216,11 +216,18 @@ def isLogin():
             False: the user is logouted.
     """
     if 'username' not in login_session:
-        print "is NOT Login!!!"
         return False
     else:
-        print "is Login!!!"
         return True
+
+
+def loginToken():
+    """Return anti-forgery state token"""
+    state = ''.join(random.choice(string.ascii_uppercase + string.digits)
+                    for x in xrange(32))
+    login_session['state'] = state
+    # return "The current session state is %s" % login_session['state']
+    return state
 
 
 # Web page handlers
@@ -245,11 +252,11 @@ def showCategories():
     if 'username' not in login_session:
         return render_template(
                 'public_categories.html', categories=categories,
-                items=items, is_login=isLogin())
+                items=items, is_login=isLogin(), STATE=loginToken())
     else:
         return render_template(
                 'categories.html', categories=categories,
-                items=items, is_login=isLogin())
+                items=items, is_login=isLogin(), STATE=loginToken())
 
 
 @app.route('/catalog/<catalog_name>/items')
@@ -261,7 +268,8 @@ def showItems(catalog_name):
     return render_template(
                 'items.html',
                 categories=categories, items=items,
-                catalog_name=catalog_name, is_login=isLogin())
+                catalog_name=catalog_name, is_login=isLogin(),
+                STATE=loginToken())
 
 
 @app.route('/catalog/<catalog_name>/<int:item_id>/<item_name>')
@@ -274,12 +282,14 @@ def showItemInfo(catalog_name, item_name, item_id):
         return render_template(
                 'public_iteminfo.html',
                 catalog_name=catalog_name, item_name=item.name,
-                info=item.description, item_id=item_id, is_login=isLogin())
+                info=item.description, item_id=item_id, is_login=isLogin(),
+                STATE=loginToken())
     else:
         return render_template(
                 'iteminfo.html',
                 catalog_name=catalog_name, item_name=item.name,
-                info=item.description, item_id=item_id, is_login=isLogin())
+                info=item.description, item_id=item_id, is_login=isLogin(),
+                STATE=loginToken())
 
 
 @app.route('/catalog/new', methods=['GET', 'POST'])
@@ -300,7 +310,8 @@ def newItem():
         return redirect(url_for('showItems', catalog_name=catalog_name))
     else:
         return render_template(
-                    'newitem.html', categories=categories, is_login=isLogin())
+                    'newitem.html', categories=categories, is_login=isLogin(),
+                    STATE=loginToken())
 
 
 @app.route(
@@ -338,7 +349,7 @@ def editItem(catalog_name, item_name, item_id):
     else:
         return render_template(
             'edititem.html', item=editedItem, categories=categories,
-            is_login=isLogin())
+            is_login=isLogin(), STATE=loginToken())
 
 
 @app.route(
@@ -362,7 +373,8 @@ def deleteItem(catalog_name, item_id, item_name):
         return redirect(url_for('showItems', catalog_name=catalog_name))
     else:
         return render_template(
-                    'deleteitem.html', item=itemToDelete, is_login=isLogin())
+                    'deleteitem.html', item=itemToDelete, is_login=isLogin(),
+                    STATE=loginToken())
 
 
 if __name__ == '__main__':
