@@ -230,10 +230,10 @@ def loginToken():
     return state
 
 
-# Web page handlers
-@app.route('/catalog.json')
-def restaurantsJSON():
-    """ JSON APIs to view Catalog Information"""
+# JSON APIs endpoint
+@app.route('/catalog/JSON')
+def catalogJSON():
+    """JSON APIs to view full catalog information"""
     list = []
     categories = session.query(Category).all()
     for category in categories:
@@ -244,6 +244,19 @@ def restaurantsJSON():
     return jsonify(categories=list)
 
 
+@app.route('/catalog/<int:item_id>/JSON')
+def itemJSON(item_id):
+    """JSON APIs to view an item information"""
+    try:
+        item = session.query(Item).filter_by(id=item_id).one()
+        return jsonify(item=item.serialize)
+    except:
+        response = make_response(json.dumps('No such item!!', 400))
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+
+# Web page handlers
 @app.route('/')
 def showCategories():
     """Show all categories and latest items"""

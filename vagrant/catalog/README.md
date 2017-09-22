@@ -1,5 +1,5 @@
 # Web Catalog Application
-This project provided a Python script uses Flask to build a web catalog website. This website implemented CRUD functions to query a SQLite database, and it has integrated with Google sign-in to distinguish the different users with different permission to edit/delete items.
+This project presented a Python script uses Flask to build a web catalog website. This website provided functions to create, read, update, and delete to query a SQLite database, and it has integrated with Google sign-in to distinguish the different users with different permission to edit/delete items. Also, this project implemented JSON API endpoints to help users to obtain the structured data of full catalog or an arbitrary item in the catalog.
 
 ## Install Virtual Machine
   1. Download and install VirtualBox [here](https://www.virtualbox.org/wiki/Downloads).
@@ -14,7 +14,8 @@ This project provided a Python script uses Flask to build a web catalog website.
 ## Create Google Client ID & Secret
   1. Go to https://console.developers.google.com/apis to create and get the client ID and client secret.
   2. Download your credential JSON file and replace the old `/vagrant/catalog/client_secrets.json`.
-  3. Go to line 19 of `/vagrant/catalog/templates/header.html` and replace YOURID with the Google client ID.
+  3. Go to line 19 of `/vagrant/catalog/templates/header.html`  
+  and line 14 of `/vagrant/catalog/templates/login.html` to replace YOURID with the Google client ID.
 
 ## Execute the website backend
   1. After type command `vagrant ssh`, you can type `cd /vagrant/catalog` to navigate to the project directory in the virtual machine.
@@ -22,3 +23,17 @@ This project provided a Python script uses Flask to build a web catalog website.
 
 ## Browse Web Catalog Application
 On the web browser Chrome, navigate to `http://localhost:8000/`, it will render the application page on the browser tab.
+
+## JSON API Endpoints
+  1. Type `http://localhost:8000/catalog/JSON` to view full catalog information.
+  2. Type `http://localhost:8000/catalog/<int:item_id>/JSON` to view an item information.  
+     For example, `http://localhost:8000/catalog/12/JSON` will show the data as below:  
+     ```
+     {
+       "item": {
+         "description": "Stephen Vincent Strange",
+         "id": 12,
+         "name": "Dr. Strange"
+       }
+     }
+     ```
