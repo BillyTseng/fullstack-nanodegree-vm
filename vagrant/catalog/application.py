@@ -6,6 +6,7 @@ from sqlalchemy import create_engine, asc, desc
 from sqlalchemy.orm import sessionmaker
 from database_setup import Category, Base, Item, User
 from flask import session as login_session
+from functools import wraps
 
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
@@ -230,6 +231,16 @@ def loginToken():
     return state
 
 
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'username' not in login_session:
+            flash("You are not allowed to access there")
+            return redirect('/login')
+        return f(*args, **kwargs)
+    return decorated_function
+
+
 # JSON APIs endpoint
 @app.route('/catalog/JSON')
 def catalogJSON():
@@ -306,10 +317,9 @@ def showItemInfo(catalog_name, item_name, item_id):
 
 
 @app.route('/catalog/new', methods=['GET', 'POST'])
+@login_required
 def newItem():
     """Create a new item"""
-    if 'username' not in login_session:
-        return redirect('/login')
     categories = session.query(Category).order_by(asc(Category.name))
     if request.method == 'POST':
         newItem = Item(
@@ -330,10 +340,9 @@ def newItem():
 @app.route(
     '/catalog/<catalog_name>/<int:item_id>/<item_name>/edit',
     methods=['GET', 'POST'])
+@login_required
 def editItem(catalog_name, item_name, item_id):
     """Edit information of item."""
-    if 'username' not in login_session:
-        return redirect('/login')
     categories = session.query(Category).order_by(asc(Category.name))
     editedItem = session.query(Item).filter_by(id=item_id).one()
 
@@ -368,10 +377,9 @@ def editItem(catalog_name, item_name, item_id):
 @app.route(
     '/catalog/<catalog_name>/<int:item_id>/<item_name>/delete',
     methods=['GET', 'POST'])
+@login_required
 def deleteItem(catalog_name, item_id, item_name):
     """Delete a item"""
-    if 'username' not in login_session:
-        return redirect('/login')
     itemToDelete = session.query(Item).filter_by(id=item_id).one()
     alert = ""
     alert += "<script>function myFunction() {alert('You are not authorized to"
