@@ -344,7 +344,11 @@ def newItem():
 def editItem(catalog_name, item_name, item_id):
     """Edit information of item."""
     categories = session.query(Category).order_by(asc(Category.name))
-    editedItem = session.query(Item).filter_by(id=item_id).one()
+    editedItem = session.query(Item).filter_by(id=item_id).one_or_none()
+    if editedItem is None:
+        response = make_response(json.dumps('No such item!!', 400))
+        response.headers['Content-Type'] = 'application/json'
+        return response
 
     alert = ""
     alert += "<script>function myFunction() {alert('You are not authorized to"
